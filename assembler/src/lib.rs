@@ -11,7 +11,7 @@ use std::collections::HashSet;
 #[allow(dead_code)]
 mod v_encoder;
 #[allow(unused_imports)]
-use v_encoder::{Imm, Ivi, Ivv, Ivx, Uimm, VInst, VReg, Vlmul, Vtypei, XReg};
+pub use v_encoder::{Imm, Ivi, Ivv, Ivx, Uimm, VConfig, VInst, VReg, Vlmul, Vtypei, XReg};
 
 pub trait ToStmts {
     fn to_stmts(&self) -> Vec<Stmt>;
@@ -32,6 +32,10 @@ pub enum RvvInst {
     Sub256(u8, u8, u8),
     // (vd, vs1, vs2)
     Rem256(u8, u8, u8),
+    // (vd, vs1, vs2)
+    Sll256(u8, u8, u8),
+    // (vd, vs1, vs2)
+    Srl256(u8, u8, u8),
     // (rd, vd, vs1, vs2)
     Ge256(u8, u8, u8, u8),
     // Keep the original normal statement
@@ -55,11 +59,11 @@ impl ToStmts for RvvBlock {
         let mut buf_counter: u16 = 0;
         let vsetvli_ts = {
             // vsetvli x0, t0, e256, m1, ta, ma
-            let [b0, b1, b2, b3] = VInst::Vsetvli {
+            let [b0, b1, b2, b3] = VInst::VConfig(VConfig::Vsetvli {
                 rd: XReg::Zero,
                 rs1: XReg::T0,
                 vtypei: Vtypei::new(256, Vlmul::M1, true, true),
-            }
+            })
             .encode_bytes();
             quote! {
                 unsafe {
@@ -197,7 +201,13 @@ impl ToStmts for RvvBlock {
                         }
                     }
                 }
-                RvvInst::Ge256(dxreg, dvreg, svreg1, svreg2) => {
+                RvvInst::Sll256(_dvreg, _svreg1, _svreg2) => {
+                    unimplemented!()
+                }
+                RvvInst::Srl256(_dvreg, _svreg1, _svreg2) => {
+                    unimplemented!()
+                }
+                RvvInst::Ge256(_dxreg, _dvreg, _svreg1, _svreg2) => {
                     // FIXME: store result as bool or u256 ???
                     // println!("[asm] ge256 {}, {}, {}, {}", dxreg, dvreg, svreg1, svreg2);
                     quote! {
@@ -294,6 +304,36 @@ impl ToStmts for RvvBlock {
                         used_idents.insert(var_dst.clone());
                         quote! {
                             let (mut #var_dst, _) = #var_numext1.overflowing_sub(#var_numext2);
+                        }
+                    }
+                }
+                RvvInst::Sll256(dvreg, svreg1, svreg2) => {
+                    let var_dst = tmp_ident(*dvreg);
+                    let var_numext1 = tmp_ident(*svreg1);
+                    let var_numext2 = tmp_ident(*svreg2);
+                    if used_idents.contains(&var_dst) {
+                        quote! {
+                            #var_dst = #var_numext2 << #var_numext1;
+                        }
+                    } else {
+                        used_idents.insert(var_dst.clone());
+                        quote! {
+                            let (mut #var_dst, _) = #var_numext2 << #var_numext1;
+                        }
+                    }
+                }
+                RvvInst::Srl256(dvreg, svreg1, svreg2) => {
+                    let var_dst = tmp_ident(*dvreg);
+                    let var_numext1 = tmp_ident(*svreg1);
+                    let var_numext2 = tmp_ident(*svreg2);
+                    if used_idents.contains(&var_dst) {
+                        quote! {
+                            #var_dst = #var_numext2 >> #var_numext1;
+                        }
+                    } else {
+                        used_idents.insert(var_dst.clone());
+                        quote! {
+                            let (mut #var_dst, _) = #var_numext2 >> #var_numext1;
                         }
                     }
                 }
