@@ -11,6 +11,7 @@ license = "MIT OR Apache-2.0"
 [features]
 default = []
 use_rvv_vector = []
+run_all_cases = []
 simulator = ["rvv/simulator"]
 
 # this configuration is very important to CKB-VM
@@ -36,9 +37,8 @@ required-features = ["simulator", "use_rvv_vector"]
 
 [[bin]]
 path = "src/main.rs"
-name = "alt-bn128-example-rvv-asm"
+name = "alt-bn128-example-rvv-vector"
 required-features = ["use_rvv_vector"]
-
 
 [[bin]]
 path = "src/main.rs"
