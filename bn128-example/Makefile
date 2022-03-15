@@ -17,10 +17,18 @@ simulator:
 rvv-vector:
 	cargo build --features=use_rvv_vector --bin alt-bn128-example-rvv-vector --release
 
+# Same as above, run all test cases, for bench
+rvv-vector-bench:
+	cargo build --features=use_rvv_vector,run_all_cases --bin alt-bn128-example-rvv-vector-bench --release
+
 # Run on ckb-vm, original code without RISC-V specialized vectorization.
 # Only use RISC-V IMC instructions.
 riscv-raw:
 	cargo build --bin alt-bn128-example-riscv-raw --release
+
+# same as above, run all test cases, for bench
+riscv-raw-bench:
+	cargo build --features=run_all_cases --bin alt-bn128-example-riscv-raw-bench --release
 
 # Run on x86, original code
 x86-raw:
@@ -46,9 +54,9 @@ run-bench-mont:
 
 run: run-riscv-raw run-rvv-vector
 
-bench:
-	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-rvv-vector
-	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-riscv-raw
+bench: rvv-vector-bench riscv-raw-bench
+	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-rvv-vector-bench
+	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-riscv-raw-bench
 
 	
 pprof-rvv:
