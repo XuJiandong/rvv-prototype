@@ -31,6 +31,12 @@ fn internal_main() {
     } else {
         debug(format!("feature != simulator"))
     }
+    if cfg!(feature = "use_rvv_asm") {
+        debug(format!("feature = use_rvv_asm"));
+    } else {
+        debug(format!("feature != use_rvv_asm"));
+    }
+
     if cfg!(feature = "run_all_cases") {
         debug(format!("start test_alt_bn128_pairing ..."));
         alt_bn128_example::ethereum::ut::test_alt_bn128_pairing();

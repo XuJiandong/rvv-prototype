@@ -21,6 +21,14 @@ rvv-vector:
 rvv-vector-bench:
 	cargo build --features=use_rvv_vector,run_all_cases --bin alt-bn128-example-rvv-vector-bench --release
 
+# Run on ckb-vm, modified code with RISC-V specialized vectorization, use rvv_asm
+rvv-asm:
+	cargo build --features=use_rvv_asm --bin alt-bn128-example-rvv-asm --release
+
+# Same as above, run all test cases, for bench
+rvv-asm-bench:
+	cargo build --features=use_rvv_asm,run_all_cases --bin alt-bn128-example-rvv-asm-bench --release
+
 # Run on ckb-vm, original code without RISC-V specialized vectorization.
 # Only use RISC-V IMC instructions.
 riscv-raw:
@@ -49,12 +57,10 @@ run-riscv-raw:
 run-x86-raw:
 	time ./target/${TARGET}/release/alt-bn128-example-x86-raw
 
-run-bench-mont:
-	RUST_LOG=debug time ${CKB_DEBUGGER} --max-cycles 2000000000 --bin ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-rvv-vector -- bench_mont | fgrep 'Run result: 0'
-
 run: run-riscv-raw run-rvv-vector
 
-bench: rvv-vector-bench riscv-raw-bench
+bench: rvv-vector-bench riscv-raw-bench rvv-asm-bench
+	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-rvv-asm-bench
 	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-rvv-vector-bench
 	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-riscv-raw-bench
 
