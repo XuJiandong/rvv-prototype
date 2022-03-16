@@ -49,7 +49,7 @@ pub fn mont_multi(np1: U256, n: U256, x: U256, y: U256, bits: usize) -> U256 {
 pub fn mont_multi_asm(np1: &[U256], n: &[U256], x: &[U256], y: &[U256], res: &mut [U256]) {
     let len = x.len() as u64;
     // not loop version
-    debug_assert!(len <= 16);
+    debug_assert!(len <= 32);
     // registers allocation:
     // x -> v4
     // y -> v8
