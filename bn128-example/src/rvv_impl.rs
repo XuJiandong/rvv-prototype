@@ -85,7 +85,7 @@ pub fn mont_multi_asm(np1: &[U256], n: &[U256], x: &[U256], y: &[U256], res: &mu
 
             // shift right and narrowing
             "addi t0, x0, 256",
-            "vnsra.wx v24, v24, t0",
+            "vnsrl.wx v24, v24, t0",
 
             // high 256 bits of x*y
             "vmulhu.vv v28, v4, v8",
