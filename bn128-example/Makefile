@@ -59,9 +59,8 @@ run-x86-raw:
 
 run: run-riscv-raw run-rvv-vector
 
-bench: rvv-vector-bench riscv-raw-bench rvv-asm-bench
+bench: riscv-raw-bench rvv-asm-bench
 	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-rvv-asm-bench
-	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-rvv-vector-bench
 	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-riscv-raw-bench
 
 	
