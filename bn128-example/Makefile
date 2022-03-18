@@ -3,7 +3,7 @@
 SHELL := /bin/bash
 
 CKB_DEBUGGER ?= ckb-debugger-rvv
-TARGET ?= x86_64-apple-darwin
+X86_TARGET ?= x86_64-unknown-linux-gnu
 ASM64 ?= asm64
 all: build
 
@@ -40,7 +40,7 @@ riscv-raw-bench:
 
 # Run on x86, original code
 x86-raw:
-	cargo build --bin alt-bn128-example-x86-raw --release --target=${TARGET}
+	cargo build --bin alt-bn128-example-x86-raw --release --target=${X86_TARGET}
 
 
 build: rvv-vector riscv-raw
@@ -55,7 +55,7 @@ run-riscv-raw:
 	RUST_LOG=debug time ${CKB_DEBUGGER} --max-cycles 2000000000 --bin ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-riscv-raw | fgrep 'Run result: 0'
 
 run-x86-raw:
-	time ./target/${TARGET}/release/alt-bn128-example-x86-raw
+	time ./target/${X86_TARGET}/release/alt-bn128-example-x86-raw
 
 run: run-riscv-raw run-rvv-vector
 
