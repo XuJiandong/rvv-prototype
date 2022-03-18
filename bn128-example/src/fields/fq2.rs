@@ -2,6 +2,7 @@ extern crate alloc;
 
 use crate::arith::{U256, U512};
 use crate::fields::{const_fq, FieldElement, Fq};
+use core::mem;
 use core::ops::{Add, Mul, Neg, Sub};
 
 use super::fp::{batch_mul, batch_mul2};
@@ -314,25 +315,12 @@ pub fn batch_mul3(
 ) -> (Fq2, Fq2, Fq2) {
     let lhs = [lhs1.c0, lhs1.c1, lhs2.c0, lhs2.c1, lhs3.c0, lhs3.c1];
     let rhs = [rhs1.c0, rhs1.c1, rhs2.c0, rhs2.c1, rhs3.c0, rhs3.c1];
-    let mut result = [
-        Fq::zero(),
-        Fq::zero(),
-        Fq::zero(),
-        Fq::zero(),
-        Fq::zero(),
-        Fq::zero(),
-    ];
+    let mut result: [Fq; 6] = unsafe { mem::MaybeUninit::uninit().assume_init() };
 
     batch_mul(&lhs, &rhs, &mut result);
 
-    let mut result2 = [
-        Fq::zero(),
-        Fq::zero(),
-        Fq::zero(),
-        Fq::zero(),
-        Fq::zero(),
-        Fq::zero(),
-    ];
+    let mut result2: [Fq; 6] = unsafe { mem::MaybeUninit::uninit().assume_init() };
+
     let lhs = [
         result[1],
         lhs1.c0 + lhs1.c1,
