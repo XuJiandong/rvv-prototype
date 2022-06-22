@@ -1,3 +1,4 @@
+use crate::fields::Fq;
 use core::{mem::transmute, slice::from_raw_parts};
 use rvv::rvv_vector;
 use rvv_asm::rvv_asm;
@@ -161,13 +162,53 @@ pub fn mul_reduce_internal(
     }
 }
 
-pub fn bench_mont() {
+const LOOP_COUNT: usize = 5_000_000;
+
+pub fn bench_mont_original() {
     let mut this = [0x1234567890ABCDEF1234567890ABCDEF, 0x111111111111111111];
     let by = [0x1234567891111111, 0x12345678922222222];
-    let modulus = [0x123456789001, 0x1234567892];
-    let inv = 0x123456789;
-    let inv_high = 0x12345678;
-    for _ in 0..72650 {
+    let modulus = [
+        0x97816a916871ca8d3c208c16d87cfd47,
+        0x30644e72e131a029b85045b68181585d,
+    ];
+    let inv = 0x9ede7d651eca6ac987d20782e4866389;
+    let inv_high = 0xf57a22b791888c6bd8afcbd01833da80u128;
+    for _ in 0..LOOP_COUNT {
         mul_reduce_internal(&mut this, &by, &modulus, inv, inv_high);
+    }
+}
+
+pub fn bench_mont_rvv(parallel: usize) {
+    use crate::arith::U256;
+    use crate::fields::batch_mul;
+    let u = Fq::new(U256([
+        0x1234567890ABCDEF1234567890ABCDEF,
+        0x111111111111111111,
+    ]))
+    .unwrap();
+    let v = Fq::new(U256([
+        0x111111111111111111,
+        0x1234567890ABCDEF1234567890ABCDEF,
+    ]))
+    .unwrap();
+
+    let lhs = [u; 16];
+    let rhs = [v; 16];
+    let mut result = [u; 16];
+
+    for _ in 0..LOOP_COUNT / parallel {
+        batch_mul(
+            &lhs[0..parallel],
+            &rhs[0..parallel],
+            &mut result[0..parallel],
+        );
+    }
+}
+
+pub fn bench_mont(parallel: usize) {
+    if parallel == 0 {
+        bench_mont_original();
+    } else {
+        bench_mont_rvv(parallel);
     }
 }

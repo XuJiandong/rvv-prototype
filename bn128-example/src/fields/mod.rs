@@ -9,6 +9,7 @@ use core::{
     ops::{Add, Mul, Neg, Sub},
 };
 
+pub use self::fp::batch_mul;
 pub use self::fp::{const_fq, Fq, Fr};
 pub use self::fq12::Fq12;
 pub use self::fq2::{fq2_nonresidue, Fq2};

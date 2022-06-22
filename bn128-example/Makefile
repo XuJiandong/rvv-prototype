@@ -63,6 +63,9 @@ bench: riscv-raw-bench rvv-asm-bench
 	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-rvv-asm-bench
 	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-riscv-raw-bench
 
+bench-mont: rvv-asm
+	time $(ASM64) ./target/riscv64imac-unknown-none-elf/release/alt-bn128-example-rvv-asm main bench_mont
+
 x86-bench:
 	export CARGO_BUILD_TARGET=x86_64-unknown-linux-gnu
 	cargo flamegraph --bin alt-bn128-example-x86-raw
