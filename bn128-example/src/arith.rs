@@ -442,7 +442,7 @@ fn add_nocarry(a: &mut [u128; 2], b: &[u128; 2]) {
 }
 
 #[inline]
-fn sub_noborrow(a: &mut [u128; 2], b: &[u128; 2]) {
+pub fn sub_noborrow(a: &mut [u128; 2], b: &[u128; 2]) {
     let (c, d) = a[0].overflowing_sub(b[0]);
     a[0] = c;
     a[1] = a[1] - b[1] - d as u128;
@@ -497,7 +497,7 @@ fn mac_digit(from_index: usize, acc: &mut [u128; 4], b: &[u128; 2], c: u128) {
 }
 
 #[inline]
-fn mul_reduce(this: &mut [u128; 2], by: &[u128; 2], modulus: &[u128; 2], inv: u128) {
+pub fn mul_reduce(this: &mut [u128; 2], by: &[u128; 2], modulus: &[u128; 2], inv: u128) {
     // The Montgomery reduction here is based on Algorithm 14.32 in
     // Handbook of Applied Cryptography
     // <http://cacr.uwaterloo.ca/hac/about/chap14.pdf>.

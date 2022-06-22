@@ -165,16 +165,27 @@ pub fn mul_reduce_internal(
 const LOOP_COUNT: usize = 5_000_000;
 
 pub fn bench_mont_original() {
-    let mut this = [0x1234567890ABCDEF1234567890ABCDEF, 0x111111111111111111];
-    let by = [0x1234567891111111, 0x12345678922222222];
-    let modulus = [
+    use crate::arith::mul_reduce;
+    use crate::arith::sub_noborrow;
+    use crate::arith::U256;
+    let mut this = U256([
+        0x816a916871ca8d3c208c16d87cfd47,
+        0x10644e72e131a029b85045b68181585d,
+    ]);
+    let by = U256([
+        0x816a916871ca8d3c208c16d87cfd47,
+        0x10644e72e131a029b85045b68181585d,
+    ]);
+    let modulus = U256([
         0x97816a916871ca8d3c208c16d87cfd47,
         0x30644e72e131a029b85045b68181585d,
-    ];
+    ]);
     let inv = 0x9ede7d651eca6ac987d20782e4866389;
-    let inv_high = 0xf57a22b791888c6bd8afcbd01833da80u128;
     for _ in 0..LOOP_COUNT {
-        mul_reduce_internal(&mut this, &by, &modulus, inv, inv_high);
+        mul_reduce(&mut this.0, &by.0, &modulus.0, inv);
+        if this >= modulus {
+            sub_noborrow(&mut this.0, &modulus.0);
+        }
     }
 }
 
